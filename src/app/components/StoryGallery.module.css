@@ -1,0 +1,74 @@
+.container {
+  display: flex;
+  gap: 15px;
+  padding: 20px 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  /* Firefox */
+  cursor: grab;
+  width: 100%;
+  max-width: 100%;
+}
+
+.container::-webkit-scrollbar {
+  display: none;
+  /* Chrome, Safari */
+}
+
+.storyCard {
+  cursor: pointer;
+  text-align: center;
+  border-radius: 10px;
+  min-width: 130px;
+  /* Fixed width for 4 visible cards */
+  max-width: 130px;
+  height: 200px;
+  position: relative;
+  transition: transform 0.3s;
+  overflow: hidden;
+  box-shadow: 0 2px 6px #0000001a;
+  flex-shrink: 0;
+  /* Prevent shrinking */
+}
+
+/* .storyCard:hover {
+    transform: translateY(-5px);
+  }
+   */
+
+.storyImage {
+  object-fit: cover;
+  width: 100%;
+  height: 200px;
+  position: relative;
+}
+
+.storyUsername {
+  margin-top: 8px;
+  font-size: 14px;
+  position: absolute;
+  z-index: 2222;
+  font-weight: 500;
+  color: #fff;
+  bottom: 10px;
+  display: flex;
+  width: 100%;
+  justify-content: center;
+}
+
+.uploadStory {
+  color: #000;
+  background-color: #f0f2f5;
+  border: 2px dashed #ccc;
+  font-size: 14px;
+  display: flex;
+}
+
+.container:active {
+  cursor: grabbing;
+}
+
+.container::-webkit-scrollbar {
+  display: none;
+  /* Chrome, Safari */
+}
