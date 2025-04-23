@@ -1,4 +1,4 @@
-// components/ImageUpload.tsx
+'use client';
 import React from 'react';
 
 interface ImageUploadProps {

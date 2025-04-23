@@ -4,42 +4,46 @@ import React, { useState } from 'react';
 import ImageUpload from './ImageUpload';
 import ImageCropper from './ImageCropper';
 import AddMusic from './AddMusic';
+import { uploadImage } from '../utils/uploadImage';
 
 interface CreatePostPopupProps {
   onClose: () => void;
-  onPost: (image: File) => void;
+  onPost: (imageUrl: string) => void;  // ← now takes a URL string
 }
 
 export default function CreatePostPopup({ onClose, onPost }: CreatePostPopupProps) {
   const [step, setStep] = useState<'upload' | 'crop' | 'music'>('upload');
   const [file, setFile] = useState<File | null>(null);
-  const [src, setSrc] = useState<string>(''); // blob URL for preview & crop
-  const [croppedImage, setCroppedImage] = useState<File | null>(null);
+  const [src, setSrc] = useState<string>(''); 
+  console.log('file founded', file);
+  console.log('files are attach', step);
+  console.log('files are disturbing', src);
 
-  // After the user picks a file:
+  // 1) After picking file, go to crop
   const handleUploadNext = (f: File) => {
-    const url = URL.createObjectURL(f);
     setFile(f);
-    setSrc(url);
+    setSrc(URL.createObjectURL(f));
     setStep('crop');
   };
 
-  // After they finish cropping:
+  // 2) After cropping, go to music step
   const handleCropComplete = (croppedFile: File) => {
-    const url = URL.createObjectURL(croppedFile);
     setFile(croppedFile);
-    setSrc(url);
+    setSrc(URL.createObjectURL(croppedFile));
     setStep('music');
   };
 
-  const handleCroppedImage = (image: File) => {
-    setCroppedImage(image);
-    setStep('music'); // Move to the next step after cropping
-  };
-  
-  // Final “Post” button:
-  const handlePost = () => {
-    if (file) onPost(file);
+  // 3) Final “Post” — upload then bubble up URL
+  const handlePost = async () => {
+    if (!file) return;
+    try {
+      const imageUrl = await uploadImage(file);
+      onPost(imageUrl);
+      onClose();
+    } catch (err) {
+      console.error('Upload failed', err);
+      alert('Could not upload image.');
+    }
   };
 
   return (
@@ -52,41 +56,35 @@ export default function CreatePostPopup({ onClose, onPost }: CreatePostPopupProp
         background: '#fff', padding: 20, borderRadius: 10,
         width: 500, position: 'relative'
       }}>
-        <button onClick={onClose} style={{
-          position: 'absolute', top: 10, right: 10, border: 'none',
-          background: 'transparent', fontSize: 18
-        }}>✖</button>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-          <img src="/images/profile-pic.png.jpg" width={40} height={40} alt="user" style={{ borderRadius: '50%' }} />
+        <button onClick={onClose} style={{ position: 'absolute', top: 10, right: 10, border: 'none', background: 'transparent', fontSize: 18 }}>✖</button>
+        <h3>Create a Post</h3>
 
-          <h3 style={{ margin: 0 }}>Create a Post</h3>
-
-        </div>
         {step === 'upload' && (
           <ImageUpload
             setImage={(f) => handleUploadNext(f!)}
-            onNext={() => {/* noop—handled in setImage */}}
-          />
+            onNext={() => { } } activeTab={''} setActiveTab={function (value: React.SetStateAction<string>): void {
+              throw new Error('Function not implemented.');
+            } }/>
         )}
 
         {step === 'crop' && src && (
           <ImageCropper
-            imageSrc={src} onCropComplete={function (croppedImage: string): void {
-                throw new Error('Function implemented.');
-            } } />
+            imageSrc={src}
+            onCropComplete={handleCropComplete}
+          />
         )}
 
         {step === 'music' && src && file && (
           <div>
-            {/* show a normal <img> so blob URLs work */}
             <p><strong>Preview:</strong></p>
             <img src={src} alt="Cropped preview" style={{ width: '100%', borderRadius: 8 }} />
-            <AddMusic image={file} onBack={() => setStep('crop')} onPost={handlePost} />
+            <AddMusic image={file} onBack={() => setStep('crop')} onPost={function (file: File): void {
+              throw new Error('Function not implemented.');
+            } } />
           </div>
         )}
 
-        {/* only show the final “Post” once we have a file and are in music step */}
-        {step === 'music' && file && (
+        {step === 'music' && file &&  (
           <button onClick={handlePost} style={{ marginTop: 20 }}>
             Post
           </button>
